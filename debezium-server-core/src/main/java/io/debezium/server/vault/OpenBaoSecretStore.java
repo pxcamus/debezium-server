@@ -80,7 +80,9 @@ public class OpenBaoSecretStore implements SecretStore {
 
         Map<String, String> values = new LinkedHashMap<>();
         data.fields().forEachRemaining(field -> {
-            if (field.getValue().isValueNode()) {
+            // A JSON null is a value node whose asText() is the string "null"; skip it with the
+            // nested objects and arrays rather than hand a pipeline the literal password "null".
+            if (field.getValue().isValueNode() && !field.getValue().isNull()) {
                 values.put(field.getKey(), field.getValue().asText());
             }
         });
